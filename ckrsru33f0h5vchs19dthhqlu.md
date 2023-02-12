@@ -1,4 +1,4 @@
-## Implement Queue-Based Load Leveling Pattern in Azure - Part 1
+# Implement Queue-Based Load Leveling Pattern in Azure - Part 1
 
 **Context and Problem:**
 
