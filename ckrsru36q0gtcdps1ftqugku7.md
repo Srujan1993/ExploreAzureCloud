@@ -1,4 +1,4 @@
-## Implement Claim Check Pattern in Azure - Part 1
+# Implement Claim Check Pattern in Azure - Part 1
 
 **Introduction :**
 
