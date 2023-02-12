@@ -1,6 +1,6 @@
 # Asynchronous Request-Reply Pattern in Azure - Part 2
 
-\*\*Introduction : \*\*
+**Introduction :**
 
 In part 1, we saw Asynchronous Request-Reply Pattern in Azure, useful scenarios in which the pattern is implemented, and different approaches to implementing the pattern in Azure.
 
@@ -17,7 +17,7 @@ In this blog post, I will implement the pattern using one of the approaches.
 4. In order to develop Azure Functions using Visual Studio, use this link as a reference [https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs](Link)
     
 
-\*\*Practical Implementation of the Pattern using Azure Functions : \*\*
+**Practical Implementation of the Pattern using Azure Functions :**
 
 In part 1, we saw multiple approaches to implement this pattern i.e using Azure Functions, Azure Logic Apps, and also a combination of Azure Functions and Azure Logic Apps.
 
@@ -234,7 +234,7 @@ public enum OnPendingEnum {
 
 * So the caller was able to receive the response message successfully using the Status endpoint URL created in the first azure function.
     
-* To keep it simple, I have used a simple JSON in the demo however these patterns will be of great use when the back end API is dealing with large messages, and this Backend Processing is usually decoupled from the front end host where the backend process becomes asynchronous but the front end still needs a clear response.
+* To keep it simple, I have used a simple JSON in the demo however these patterns will be of great use when the back-end API is dealing with large messages, and this Backend Processing is usually decoupled from the front-end host where the backend process becomes asynchronous but the front end still needs a clear response.
     
 * Retry logic implemented in the Asynchronous Status Checker will come into the picture while dealing with large messages.
     
@@ -243,4 +243,4 @@ public enum OnPendingEnum {
 
 * [https://docs.microsoft.com/en-us/azure/architecture/patterns/async-request-reply](Link)
     
-* **Github Sample** : [https://github.com/mspnp/cloud-design-patterns/tree/master/async-request-reply](Link)
+* **Github Sample**: [https://github.com/mspnp/cloud-design-patterns/tree/master/async-request-reply](Link)
