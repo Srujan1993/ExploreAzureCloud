@@ -1,6 +1,6 @@
 # Publisher - Subscriber Pattern in Azure - Part 2
 
-\*\*Introduction : \*\*
+\*\*Introduction: \*\*
 
 In part 1, we saw the publisher-subscriber pattern in Azure, useful scenarios in which the pattern is implemented, and different approaches to implementing the pattern in azure.
 
