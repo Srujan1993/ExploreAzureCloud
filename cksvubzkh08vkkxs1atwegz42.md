@@ -1,6 +1,6 @@
-## Asynchronous Request-Reply Pattern in Azure - Part 2
+# Asynchronous Request-Reply Pattern in Azure - Part 2
 
-**Introduction : **
+\*\*Introduction : \*\*
 
 In part 1, we saw Asynchronous Request-Reply Pattern in Azure, useful scenarios in which the pattern is implemented, and different approaches to implementing the pattern in Azure.
 
@@ -8,31 +8,29 @@ In this blog post, I will implement the pattern using one of the approaches.
 
 **Prerequisites :**
 
-1) Please go through  [https://exploreazurecloud.com/asynchronous-request-reply-pattern-in-azure-part-1](Link) before you read this blog post.
-2) If you want to try implementing this pattern practically, You need to have an Azure subscription, create an Azure Free Account using this link
-[https://azure.microsoft.com/en-in/free/?ref=microsoft.com&utm\_source=microsoft.com&utm\_medium=docs&utm\_campaign=visualstudio](https://azure.microsoft.com/en-in/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio)
-3) Make Sure that you have Visual Studio installed in your machine along with Azure development tools selected in the Visual Studio Installer.
-4) In order to develop Azure Functions using Visual Studio, use this link as a reference  [https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs ](Link)
+1. Please go through [https://exploreazurecloud.com/asynchronous-request-reply-pattern-in-azure-part-1](Link) before you read this blog post.
+    
+2. If you want to try implementing this pattern practically, You need to have an Azure subscription, create an Azure Free Account using this link [https://azure.microsoft.com/en-in/free/?ref=microsoft.com&utm\_source=microsoft.com&utm\_medium=docs&utm\_campaign=visualstudio](https://azure.microsoft.com/en-in/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio)
+    
+3. Make Sure that you have Visual Studio installed in your machine along with Azure development tools selected in the Visual Studio Installer.
+    
+4. In order to develop Azure Functions using Visual Studio, use this link as a reference [https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs](Link)
+    
 
+\*\*Practical Implementation of the Pattern using Azure Functions : \*\*
 
-**Practical Implementation of the Pattern using Azure Functions : **
+In part 1, we saw multiple approaches to implement this pattern i.e using Azure Functions, Azure Logic Apps, and also a combination of Azure Functions and Azure Logic Apps.
 
-In part 1, we saw multiple approaches to implement this pattern i.e using Azure Functions, Azure Logic Apps, and also a combination of Azure Functions and Azure Logic Apps.  
+For this demo, we will implement the pattern using Azure Functions. I referred to the GitHub sample [https://github.com/mspnp/cloud-design-patterns/tree/master/async-request-reply/src](Link) mentioned in the MSDN documentation to demonstrate this pattern.
 
-For this demo, we will implement the pattern using Azure Functions. I referred to the GitHub sample  [https://github.com/mspnp/cloud-design-patterns/tree/master/async-request-reply/src](Link)  mentioned in the MSDN documentation to demonstrate this pattern. 
+For Simplification purposes, let us consider Postman as the Client in place of a web browser.
 
-For Simplification purposes, let us consider Postman as the Client in place of a web browser. 
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1629516152328/dGSvODV_1G.png align="left")
 
+* We will have three functions implemented within this pattern, the first function receives the request from the postman and then sends a reply with 202 status code and status endpoint URL which the client i.e postman asynchronously and also sends the request message to the service bus queue for further processing. Here is the code snippet for the function.
+    
 
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1629516152328/dGSvODV_1G.png)
-
-
-
-
--  We will have three functions implemented within this pattern, the first function receives the request from the postman and then sends a reply with 202 status code and status endpoint URL which the client i.e postman asynchronously and also sends the request message to the service bus queue for further processing. Here is the code snippet for the function.
-
-
-```
+```plaintext
 public static class AsyncProcessingWorkAcceptor
     {
         [FunctionName("AsyncProcessingWorkAcceptor")]
@@ -61,14 +59,12 @@ public static class AsyncProcessingWorkAcceptor
             return (ActionResult)new AcceptedResult(rqs, $"Request Accepted for Processing{Environment.NewLine}ProxyStatus: {rqs}");
         }
     }
-``` 
-
-
-
-- Second function is a service bus queue trigger which polls the message from the queue and then writes it to the blob storage having sas signature location.
-
-
 ```
+
+* Second function is a service bus queue trigger which polls the message from the queue and then writes it to the blob storage having sas signature location.
+    
+
+```plaintext
 public static class AsyncProcessingBackgroundWorker
 {
     [FunctionName("AsyncProcessingBackgroundWorker")]
@@ -88,18 +84,21 @@ public static class AsyncProcessingBackgroundWorker
         cbb.UploadFromByteArrayAsync(myQueueItem.Body, 0, myQueueItem.Body.Length);
     }
 }
-``` 
-
-- The Last function is exposed as a GET method with status endpoint URL and two optional query parameters added in the function.
-
-      
-1. One query parameter is **OnComplete** and the other one is **On pending**.
-2. If the caller wants the redirect URI of the blob storage as a response if the input blob exists in the status endpoint URL, then the caller has to pass **Redirect** as a value where as if the caller wants to file to be downloaded and returned directly, then the caller has to pass **Stream** as value.
-3. Lets's say the blob request is still not completed i.e the blob is still not fully available on the endpoint location, the caller can pass **Accepted** as value to **OnPending** query parameter if he wants a 202 status code and a self-referencing Location header pointing to the endpoint URL. 
-4. Caller can pass **Synchronous** as value to **OnPending** query parameter to call the retry logic to check for the blob existence , call the OnComplete logic if the blob exist after some time interval else send blob not found response back to the caller.
-
-
 ```
+
+* The Last function is exposed as a GET method with status endpoint URL and two optional query parameters added in the function.
+    
+
+1. One query parameter is **OnComplete** and the other one is **On pending**.
+    
+2. If the caller wants the redirect URI of the blob storage as a response if the input blob exists in the status endpoint URL, then the caller has to pass **Redirect** as a value where as if the caller wants to file to be downloaded and returned directly, then the caller has to pass **Stream** as value.
+    
+3. Lets's say the blob request is still not completed i.e the blob is still not fully available on the endpoint location, the caller can pass **Accepted** as value to **OnPending** query parameter if he wants a 202 status code and a self-referencing Location header pointing to the endpoint URL.
+    
+4. Caller can pass **Synchronous** as value to **OnPending** query parameter to call the retry logic to check for the blob existence , call the OnComplete logic if the blob exist after some time interval else send blob not found response back to the caller.
+    
+
+```plaintext
 public static class AsyncOperationStatusChecker
 {
     [FunctionName("AsyncOperationStatusChecker")]
@@ -201,57 +200,47 @@ public enum OnPendingEnum {
     Accepted,
     Synchronous
 }
-``` 
+```
 
 **Demo:**
 
--  I hosted all these functions in an azure function app and also making sure we have one service bus queue and storage account created.
-- Let's execute the first function which accepts the input message and then pushes the message to a queue and also sends an endpoint URL back in the response for the caller to poll later.
+* I hosted all these functions in an azure function app and also making sure we have one service bus queue and storage account created.
+    
+* Let's execute the first function which accepts the input message and then pushes the message to a queue and also sends an endpoint URL back in the response for the caller to poll later.
+    
 
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630125838621/O_l8X5-jA.png align="left")
 
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630125838621/O_l8X5-jA.png)
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630125899761/bgOBGMh_0.png align="left")
 
+* Asynchronous work acceptor function is called from Postman to start the process.
+    
+* A simple request is passed as input to the function and the function, in turn, returns 202 as status code response, also the endpoint URL is sent in the response as highlighted in the below screenshot. URL contains a unique GUID representing the message and at the same time, the message is sent to a service bus queue.
+    
 
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630125899761/bgOBGMh_0.png)
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630127267762/Z1FlQwhhu.png align="left")
 
--  Asynchronous work acceptor function is called from Postman to start the process.
--  A simple request is passed as input to the function and the function, in turn, returns 202 as status code response, also the endpoint URL is sent in the response as highlighted in the below screenshot. URL contains a unique GUID representing the message and at the same time, the message is sent to a service bus queue.
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630127371929/52pxrnl-1.png align="left")
 
+* The second Function i.e Asynchronous Background worker polls the message from the queue and writes that message to blob storage with the id of the blob set to the GUID created in the first function.
+    
 
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630127267762/Z1FlQwhhu.png)
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630157350996/vBYzsh5rc.png align="left")
 
+* Now the client i.e Postman, in this case, triggers the final function i.e Asynchronous status checker to retrieve the data from the blob storage using GUID. As the query parameters are optional, didn't pass it explicitly.
+    
 
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630127371929/52pxrnl-1.png)
+![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630157078964/ZxRRxCJCM.png align="left")
 
-
-- The second Function i.e Asynchronous Background worker polls the message from the queue and writes that message to blob storage with the id of the blob set to the GUID created in the first function.
-
-
-
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630157350996/vBYzsh5rc.png)
-
-- Now the client i.e Postman, in this case, triggers the final function i.e Asynchronous status checker to retrieve the data from the blob storage using GUID. As the query parameters are optional, didn't pass it explicitly.
-
-
-![image.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1630157078964/ZxRRxCJCM.png)
-
-
-
-- So the caller was able to receive the response message successfully using the Status endpoint URL created in the first azure function.
-
-- To keep it simple, I have used a simple JSON in the demo however these patterns will be of great use when the back end API is dealing with large messages, and this  Backend Processing is usually decoupled from the front end host where the backend process becomes asynchronous but the front end still needs a clear response.
-
--  Retry logic implemented in the Asynchronous Status Checker will come into the picture while dealing with large messages.
-
+* So the caller was able to receive the response message successfully using the Status endpoint URL created in the first azure function.
+    
+* To keep it simple, I have used a simple JSON in the demo however these patterns will be of great use when the back end API is dealing with large messages, and this Backend Processing is usually decoupled from the front end host where the backend process becomes asynchronous but the front end still needs a clear response.
+    
+* Retry logic implemented in the Asynchronous Status Checker will come into the picture while dealing with large messages.
+    
 
 **References:**
 
- - [https://docs.microsoft.com/en-us/azure/architecture/patterns/async-request-reply](
-Link) 
-
-- **Github Sample** :  [https://github.com/mspnp/cloud-design-patterns/tree/master/async-request-reply](Link) 
-
-
-
-
-
+* [https://docs.microsoft.com/en-us/azure/architecture/patterns/async-request-reply](Link)
+    
+* **Github Sample** : [https://github.com/mspnp/cloud-design-patterns/tree/master/async-request-reply](Link)
