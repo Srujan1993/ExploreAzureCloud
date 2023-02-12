@@ -1,4 +1,4 @@
-## Demystify Serverless Computing in Azure
+# Demystify Serverless Computing in Azure
 
 **Introduction :**
 
