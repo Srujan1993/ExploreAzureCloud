@@ -1,8 +1,9 @@
 ---
-title: "Pipes and Filters Pattern in Azure - Part  1"
+title: "Pipes and Filters Pattern in Azure - Part 1"
 datePublished: Thu Mar 23 2023 04:21:54 GMT+0000 (Coordinated Universal Time)
 cuid: clfklwyf8000809l50p0x62is
 slug: pipes-and-filters-pattern-in-azure-part-1
+cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1679545583850/977d9219-862a-4ef5-8c78-e3c4be2b6449.jpeg
 tags: design-patterns, azure, cloud-native, integration-patterns
 
 ---
